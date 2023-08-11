@@ -45,9 +45,9 @@ public class Test {
                 howManyDigits = input.next();
                 howManyDigitsConvertToInt = tryParseInt(howManyDigits, howManyDigitsConvertToInt);
 
-                if (howManyDigitsConvertToInt > 5 || howManyDigitsConvertToInt < 3 || howManyDigits.length() > 1) {
+                if (howManyDigits.length() > 1 || howManyDigitsConvertToInt > 5 || howManyDigitsConvertToInt < 3 ) {
                     clrscr();
-                    System.out.println("Enter an appropriate answer lan");
+                    System.out.println("Enter an appropriate answer");
                 } else {
                     number = new Number(howManyDigitsConvertToInt);
                     clrscr();
