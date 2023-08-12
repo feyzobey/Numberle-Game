@@ -109,16 +109,12 @@
             <label for="digitCount">Enter the number of digits (3, 4, 5, or 6):</label>
             <input type="number" id="digitCount" min="3" max="6">
             <button id="startButton">Start Game</button>
-            <ul>
-                <li><input type="radio" name="difficulty" id="easy" value="10"></li>
-                  <label for="easy">Easy (10 attemps)</label><br>
-                <li><input type="radio" name="difficulty" id="medium" value="7"></li>
-                  <label for="medium">Medium (7 attemps)</label><br>
-                <li><input type="radio" name="difficulty" id="hard" value="5"></li>
-                  <label for="hard">Hard (5 attemps)</label><br>
-                <li><input type="radio" name="difficulty" id="expert" value="3"></li>
-                  <label for="expert">Expert (3 attemps)</label><br>
-            </ul>
+            <div>
+                <input type="radio" name="difficulty" id="easy" value="10">Easy (10 attemps)</li><br>
+                <input type="radio" name="difficulty" id="medium" value="7">Medium (7 attemps)</li><br>
+                <input type="radio" name="difficulty" id="hard" value="5">Hard (5 attemps)</li><br>
+                <input type="radio" name="difficulty" id="expert" value="3">Expert (3 attemps)</li><br>
+            </div>
             <p class="error-message" id="digitError"></p>
         </div>
     </div>
@@ -128,18 +124,17 @@
             const digitError = document.getElementById("digitError");
             startButton.addEventListener("click", startGame);
             let remainingAttempts
-            
+
             function startGame() {
                 const digitCountInput = document.getElementById("digitCount");
                 const digitCount = parseInt(digitCountInput.value);
-                // get selected radio button value
-                
+
                 if (isNaN(digitCount) || digitCount < 3 || digitCount > 6) {
                     digitError.style.display = "block";
                     digitError.textContent = "Please enter a valid number between 3 and 6.";
                     return;
                 }
-                
+
                 if (document.querySelector('input[name="difficulty"]:checked') === null) {
                     digitError.style.display = "block";
                     digitError.textContent = "Please select a difficulty.";
@@ -147,9 +142,9 @@
                 }
 
                 digitError.style.display = "none";
-                
-                remainingAttempts = document.querySelector('input[name="difficulty"]:checked').value;                
-                
+
+                remainingAttempts = document.querySelector('input[name="difficulty"]:checked').value;
+
                 const gameArea = document.getElementById("gameArea");
                 gameArea.innerHTML = '<p class="error-message" id="digitError"></p>';
 
@@ -209,6 +204,11 @@
                 gameArea.appendChild(historyText);
 
                 guessButton.addEventListener("click", makeGuess);
+                digitBox.addEventListener("keyup", function (event) {
+                    if (event.key === "Enter") {
+                        makeGuess();
+                    }
+                });
                 giveUpButton.addEventListener("click", giveUp);
 
                 function makeGuess() {
@@ -227,8 +227,8 @@
                         digitError.style.display = "block";
                         return;
                     }
-                    //repeating digits check 
-                    if(guess.length !== new Set(guess).size){
+
+                    if (guess.length !== new Set(guess).size) {
                         digitError.textContent = "Repeating digits are not allowed";
                         digitError.style.display = "block";
                         return;
@@ -249,6 +249,7 @@
 
                     if (remainingAttempts <= 0) {
                         displayMessage(`No attempts left! The secret number was ${secretNumber}.`);
+                        digitBox.disabled = true;
                         guessButton.disabled = true;
                         giveUpButton.disabled = true;
                         guessButton.style.backgroundColor = "#ccc";
@@ -275,6 +276,7 @@
                     if (correctLocationCount === digitCount) {
                         displayMessage(`Congrats!! You found the secret number ${secretNumber} :)`);
                         isWon = true;
+                        digitBox.disabled = true;
                         guessButton.disabled = true;
                         giveUpButton.disabled = true;
                         guessButton.style.backgroundColor = "#ccc";
@@ -288,11 +290,14 @@
                     if (incorrectLocationCount > 0) {
                         feedback += `-${incorrectLocationCount}`;
                     }
+                    if (feedback === "") {
+                        feedback = "0";
+                    }
                     return [feedback, isWon];
                 }
 
                 function displayHistory(history) {
-                    const historyContent = history.map(entry => `${entry.guess} -> ${entry.feedback}`).join("<br>");
+                    const historyContent = history.map(entry => `${entry.guess} => ${entry.feedback}`).join("<br>");
                     historyText.innerHTML = historyContent;
                 }
 
@@ -306,6 +311,7 @@
 
                 function giveUp() {
                     displayMessage(`The secret number was ${secretNumber}. You gave up.`);
+                    digitBox.disabled = true;
                     guessButton.disabled = true;
                     giveUpButton.disabled = true;
                     guessButton.style.backgroundColor = "#ccc";
@@ -317,11 +323,6 @@
                     const messageElement = document.createElement("p");
                     messageElement.textContent = message;
                     gameArea.appendChild(messageElement);
-                }
-
-                function displayErrorMessage(message) {
-                    digitError.textContent = message;
-                    digitError.style.display = "block";
                 }
 
                 function clearErrorMessage() {
