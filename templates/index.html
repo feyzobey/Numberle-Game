@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="sweetalert2.all.min.js"></script>
+    <script src="sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="sweetalert2.min.css">
+
+    <title>Number Guessing Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fbef04;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            padding: 20px;
+            background-color: rgb(196, 255, 184);
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            margin-top: -100px;
+            /* Adjusted margin-top */
+            position: relative;
+        }
+
+        .container h1 {
+            margin-bottom: 20px;
+        }
+
+        .digit-box {
+            display: inline-block;
+            width: 95px;
+            height: 40px;
+            text-align: center;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+            font-size: 24px;
+            transition: border-color 0.2s;
+        }
+
+        .digit-box:focus {
+            border-color: #6d9;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .guess-input {
+            margin-top: 20px;
+        }
+
+        .attempts {
+            margin-top: 10px;
+            text-align: left;
+        }
+
+        .history {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Number Guessing Game</h1>
+        <div id="gameArea">
+            <label for="digitCount">Enter the number of digits (3, 4, 5, or 6):</label>
+            <input type="number" id="digitCount" min="3" max="6">
+            <button id="startButton">Start Game</button>
+            <ul>
+                <li><input type="radio" name="difficulty" id="easy" value="10"></li>
+                  <label for="easy">Easy (10 attemps)</label><br>
+                <li><input type="radio" name="difficulty" id="medium" value="7"></li>
+                  <label for="medium">Medium (7 attemps)</label><br>
+                <li><input type="radio" name="difficulty" id="hard" value="5"></li>
+                  <label for="hard">Hard (5 attemps)</label><br>
+                <li><input type="radio" name="difficulty" id="expert" value="3"></li>
+                  <label for="expert">Expert (3 attemps)</label><br>
+            </ul>
+            <p class="error-message" id="digitError"></p>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const startButton = document.getElementById("startButton");
+            const digitError = document.getElementById("digitError");
+            startButton.addEventListener("click", startGame);
+            let remainingAttempts
+            
+            function startGame() {
+                const digitCountInput = document.getElementById("digitCount");
+                const digitCount = parseInt(digitCountInput.value);
+                // get selected radio button value
+                
+                if (isNaN(digitCount) || digitCount < 3 || digitCount > 6) {
+                    digitError.style.display = "block";
+                    digitError.textContent = "Please enter a valid number between 3 and 6.";
+                    return;
+                }
+                
+                if (document.querySelector('input[name="difficulty"]:checked') === null) {
+                    digitError.style.display = "block";
+                    digitError.textContent = "Please select a difficulty.";
+                    return;
+                }
+
+                digitError.style.display = "none";
+                
+                remainingAttempts = document.querySelector('input[name="difficulty"]:checked').value;                
+                
+                const gameArea = document.getElementById("gameArea");
+                gameArea.innerHTML = '<p class="error-message" id="digitError"></p>';
+
+                const secretNumber = generateSecretNumber(digitCount);
+                playGame(secretNumber, digitCount);
+            }
+
+            function generateSecretNumber(digitCount) {
+                const randomDigits = [];
+                while (randomDigits.length < digitCount) {
+                    const digit = Math.floor(Math.random() * 10);
+                    if (!randomDigits.includes(digit)) {
+                        randomDigits.push(digit);
+                    }
+                }
+                while (randomDigits[0] === 0) {
+                    const newRandom = Math.floor(Math.random() * 9) + 1;
+                    if (!randomDigits.includes(newRandom)) {
+                        randomDigits[0] = newRandom;
+                    }
+                }
+                return randomDigits.join("");
+            }
+
+            function playGame(secretNumber, digitCount) {
+                console.log(secretNumber);
+                const attemptHistory = [];
+
+                const digitBox = document.createElement("input");
+                digitBox.className = "digit-box";
+                digitBox.type = "text";
+                digitBox.autofocus = true;
+                gameArea.appendChild(digitBox);
+
+                const guessButton = document.createElement("button");
+                guessButton.textContent = "Guess";
+                gameArea.appendChild(guessButton);
+
+                const giveUpButton = document.createElement("button");
+                giveUpButton.textContent = "Give Up";
+                gameArea.appendChild(giveUpButton);
+
+                const tryAgainButton = document.createElement("button");
+                tryAgainButton.id = "try-again";
+                tryAgainButton.textContent = "Try Again";
+                tryAgainButton.addEventListener("click", () => {
+                    location.reload();
+                });
+                gameArea.appendChild(tryAgainButton);
+
+                const attemptsText = document.createElement("p");
+                attemptsText.className = "attempts";
+                gameArea.appendChild(attemptsText);
+
+                const historyText = document.createElement("p");
+                historyText.className = "history";
+                gameArea.appendChild(historyText);
+
+                guessButton.addEventListener("click", makeGuess);
+                giveUpButton.addEventListener("click", giveUp);
+
+                function makeGuess() {
+                    clearErrorMessage();
+                    const guess = digitBox.value;
+                    const digitError = document.getElementById("digitError");
+
+                    if (parseInt(guess) < 0 || guess.length !== digitCount || isNaN(guess)) {
+                        digitError.textContent = "Please enter a valid number.";
+                        digitError.style.display = "block";
+                        return;
+                    }
+
+                    if (guess[0] === "0" || guess.match(/[0-9]/g).join("") !== guess) {
+                        digitError.textContent = "The number must not begin with 0";
+                        digitError.style.display = "block";
+                        return;
+                    }
+                    //repeating digits check 
+                    if(guess.length !== new Set(guess).size){
+                        digitError.textContent = "Repeating digits are not allowed";
+                        digitError.style.display = "block";
+                        return;
+                    }
+
+                    digitError.style.display = "none";
+
+                    const [feedback, isWon] = checkGuess(secretNumber, guess);
+                    remainingAttempts--;
+                    attemptHistory.push({ guess, feedback });
+
+                    displayHistory(attemptHistory);
+                    updateAttemptsText();
+
+                    if (isWon) {
+                        return;
+                    }
+
+                    if (remainingAttempts <= 0) {
+                        displayMessage(`No attempts left! The secret number was ${secretNumber}.`);
+                        guessButton.disabled = true;
+                        giveUpButton.disabled = true;
+                        guessButton.style.backgroundColor = "#ccc";
+                        giveUpButton.style.backgroundColor = "#ccc";
+                        return;
+                    }
+
+                    clearDigitBox();
+                }
+
+                function checkGuess(secretNumber, guess) {
+                    let correctLocationCount = 0;
+                    let incorrectLocationCount = 0;
+                    let isWon = false;
+
+                    for (let i = 0; i < digitCount; i++) {
+                        if (secretNumber[i] === guess[i]) {
+                            correctLocationCount++;
+                        } else if (secretNumber.includes(guess[i])) {
+                            incorrectLocationCount++;
+                        }
+                    }
+
+                    if (correctLocationCount === digitCount) {
+                        displayMessage(`Congrats!! You found the secret number ${secretNumber} :)`);
+                        isWon = true;
+                        guessButton.disabled = true;
+                        giveUpButton.disabled = true;
+                        guessButton.style.backgroundColor = "#ccc";
+                        giveUpButton.style.backgroundColor = "#ccc";
+                    }
+
+                    let feedback = "";
+                    if (correctLocationCount > 0) {
+                        feedback += `+${correctLocationCount}`;
+                    }
+                    if (incorrectLocationCount > 0) {
+                        feedback += `-${incorrectLocationCount}`;
+                    }
+                    return [feedback, isWon];
+                }
+
+                function displayHistory(history) {
+                    const historyContent = history.map(entry => `${entry.guess} -> ${entry.feedback}`).join("<br>");
+                    historyText.innerHTML = historyContent;
+                }
+
+                function updateAttemptsText() {
+                    attemptsText.textContent = `Attempts left: ${remainingAttempts}`;
+                }
+
+                function clearDigitBox() {
+                    digitBox.value = "";
+                }
+
+                function giveUp() {
+                    displayMessage(`The secret number was ${secretNumber}. You gave up.`);
+                    guessButton.disabled = true;
+                    giveUpButton.disabled = true;
+                    guessButton.style.backgroundColor = "#ccc";
+                    giveUpButton.style.backgroundColor = "#ccc";
+                    const tryAgainButton = document.getElementById("try-again");
+                }
+
+                function displayMessage(message) {
+                    const messageElement = document.createElement("p");
+                    messageElement.textContent = message;
+                    gameArea.appendChild(messageElement);
+                }
+
+                function displayErrorMessage(message) {
+                    digitError.textContent = message;
+                    digitError.style.display = "block";
+                }
+
+                function clearErrorMessage() {
+                    digitError.textContent = "";
+                    digitError.style.display = "none";
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
