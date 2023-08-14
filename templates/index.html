@@ -106,14 +106,23 @@
     <div class="container">
         <h1>Number Guessing Game</h1>
         <div id="gameArea">
-            <label for="digitCount">Enter the number of digits (3, 4, 5, or 6):</label>
+            <p>Welcome to the Number Guessing Game! Your goal is to guess the secret number, which is a combination of
+                digits.</p>
+            <p>When you make a guess, you'll receive feedback using the symbols:</p>
+            <ul>
+                <li><strong style="font-size: larger;">(+)</strong> Correct digit in the correct position</li>
+                <li><strong style="font-size: larger;">(-)</strong> Correct digit in the wrong position</li>
+                <li><strong style="font-size: larger;">(0)</strong> Incorrect digit (this is not showed near of +1's and -1's)</li>
+            </ul>
+            <p>For example, if the secret number is 123 and your guess is 143, the feedback would be +1 -1</p>
+            <p>To begin, enter the number of digits (3, 4, 5, or 6) for the secret number:</p>
             <input type="number" id="digitCount" min="3" max="6">
             <button id="startButton">Start Game</button>
             <div>
-                <input type="radio" name="difficulty" id="easy" value="15">Easy (10 attemps)</li><br>
-                <input type="radio" name="difficulty" id="medium" value="12">Medium (7 attemps)</li><br>
-                <input type="radio" name="difficulty" id="hard" value="8">Hard (5 attemps)</li><br>
-                <input type="radio" name="difficulty" id="expert" value="5">Expert (3 attemps)</li><br>
+                <input type="radio" name="difficulty" id="easy" value="15">Easy (15 attemps)</li><br>
+                <input type="radio" name="difficulty" id="medium" value="12">Medium (12 attemps)</li><br>
+                <input type="radio" name="difficulty" id="hard" value="8">Hard (8 attemps)</li><br>
+                <input type="radio" name="difficulty" id="expert" value="5">Expert (5 attemps)</li><br>
             </div>
             <p class="error-message" id="digitError"></p>
         </div>
@@ -170,7 +179,7 @@
             }
 
             function playGame(secretNumber, digitCount) {
-                console.log(secretNumber);
+                //console.log(secretNumber);
                 const attemptHistory = [];
 
                 const digitBox = document.createElement("input");
